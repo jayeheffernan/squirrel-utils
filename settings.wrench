@@ -1,0 +1,9 @@
+{
+    "agent_file_out":"builds/agent.nut",
+    "device_file_out":"builds/device.nut",
+    "agent_file_in":"utils.nut",
+    "device_file_in":"utils.nut",
+    "api_file":".build_api_key.json",
+    "model_key":"MDj3y53ifZRU",
+    "dirs":[]
+}
