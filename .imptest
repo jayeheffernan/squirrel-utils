@@ -1,0 +1,15 @@
+{
+    "apiKey": "TODO",
+    "modelId": "MDj3y53ifZRU" /* utils */,
+    "devices": [
+        "234253058fb7bdee" /* 234253058fb7bdee */
+    ],
+    "agentFile": "utils.nut",
+    "deviceFile": "utils.nut",
+    "stopOnFailure": false,
+    "timeout": 30,
+    "tests": [
+        "*.test.nut",
+        "tests/**/*.test.nut"
+    ]
+}
