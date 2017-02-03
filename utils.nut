@@ -1,12 +1,3 @@
-// copies a table
-function copy(t) {
-    local c = {};
-    foreach (k,v in t) {
-        c[k] <- v
-    }
-    return c;
-}
-
 function keys(table) {
     local keys = [];
     foreach (k, v in table) {
@@ -23,43 +14,60 @@ function concat(arrays, nulls=false) {
     return result;
 }
 
-// WARNING: mutates `given`
-// Merges table `given` with `defaults`.  Values in `given` take precedence.
-// `nulls` specifies whether nulls are allowable values.  If `nulls == false`
-// then given `null` in `given` will be replaced with the value in `defaults`.
-// `nulls == true` will keep given `null` in `given` and ignore the value in
-// `defaults`.  `null` can be true or false (whether any/all keys are allowed
-// to be null) or an array (of which keys can be null)
-function merge(given, defaults, nulls=false) {
-    foreach (k,v in defaults) {
-        // This value can be null if...
-        local canBeNull = (
-            // If nulls are allowed on all keys, or
-            nulls == true ||
-            // nulls is an array, and this key is listed, or
-            (typeof nulls == "array" && nulls.find(k) != null)
-        );
-        // If the keys doesn't exist, set it
-        if (!(k in given)) {
-            given[k] <- v;
-        // If the key exists and is null, and is not allowed to be null, then also set it
-        } else if ((k in given) && given[k] == null && !canBeNull) {
-            given[k] = v;
-        }
+function merged(tables, opts={}) {
+    if (!( "respectNulls" in opts )) {
+        opts.respectNulls <- false;
     }
-    // We have mutated the original object, but return it as well
-    return given;
-}
+    if (!("safe" in opts)) {
+        opts.safe <- false;
+    }
 
-// Like merge but makes sure that `given` does not provide any options not
-// present in `defaults`
-function strictmerge(given, defaults, nulls=false) {
-    foreach (k, v in given) {
-        if (!(k in defaults)) {
-            throw "Unknown option: " + k;
+    tables = toarray(tables);
+
+    local merged = {};
+
+    local validKeys = null;
+    if (opts.safe) {
+        if (tables.len() < 2) {
+            throw "Cannot perform \"safe\" merge on less than two tables";
         }
+        validKeys = concat(tables.slice(1).map(@(table) keys(table)));
     }
-    return merge(given, defaults, nulls);
+
+    foreach (i, table in tables) {
+
+        foreach (k, v in table) {
+            // Null can count as a "real" value for this slot if...
+            local canBeNull = (
+                // nulls are allowed on all keys, or
+                opts.respectNulls == true ||
+                // nulls is an array, and this key is listed, or
+                (typeof opts.respectNulls == "array" && opts.respectNulls.find(k) != null)
+            );
+
+            // If validKeys is null i.e. safe mode is off then all keys are valid.
+            // All keys in all tables after the first are valid.
+            // Keys in the first table are only valid if they are present in
+            // later tables (and therfore in validKeys).
+            local valid = !validKeys || i != 0 || (validKeys.find(k) != null);
+
+            if (!valid) {
+                throw "Unknown key " + k;
+            }
+
+            // If the keys doesn't exist, set it
+            if (!(k in merged)) {
+                merged[k] <- v;
+            // If the key exists and is null, and we don't respect null, then also set it
+            } else if ((k in merged) && merged[k] == null && !canBeNull) {
+                merged[k] = v;
+            }
+
+        }
+
+    }
+
+    return merged;
 }
 
 // Validates an obj against a number of test function
