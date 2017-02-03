@@ -151,14 +151,8 @@ function validate(tests, scope = null, prefix = null, throwIt = null) {
 }
 
 // Returns thing as an array
-// ---------------------------
-// typeof thing | return value
-// ---------------------------
-//    array     |     thing
-//    null      |       []
-//    other     |   [ thing ]
-function toarray(thing) {
-    if (thing == null) {
+function toarray(thing, nulls=false) {
+    if (thing == null && !nulls) {
         return [];
     }
     return typeof thing == "array" ? thing : [ thing ];
