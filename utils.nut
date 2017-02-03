@@ -7,6 +7,22 @@ function copy(t) {
     return c;
 }
 
+function keys(table) {
+    local keys = [];
+    foreach (k, v in table) {
+        keys.push(k);
+    }
+    return keys;
+}
+
+function concat(arrays, nulls=false) {
+    local result = [];
+    foreach (a in arrays) {
+        result.extend(toarray(a, nulls));
+    }
+    return result;
+}
+
 // WARNING: mutates `given`
 // Merges table `given` with `defaults`.  Values in `given` take precedence.
 // `nulls` specifies whether nulls are allowable values.  If `nulls == false`
