@@ -1,3 +1,12 @@
+// copies a table
+function copy(t) {
+    local c = {};
+    foreach (k,v in t) {
+        c[k] <- v
+    }
+    return c;
+}
+
 // WARNING: mutates `given`
 // Merges table `given` with `defaults`.  Values in `given` take precedence.
 // `nulls` specifies whether nulls are allowable values.  If `nulls == false`
