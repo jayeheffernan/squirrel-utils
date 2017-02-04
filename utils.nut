@@ -107,27 +107,29 @@ function join(arr, sep="") {
 // of conditions  is fulfilled.  This would enable the situation where there
 // are a number of different (conflicting) ways a set of options can be valid,
 // and allow different function to be dispatched batched on each
-function validate(tests, scope = null, prefix = null, throwIt = null) {
-    local err = null;
-    local errIndex = null;
 
-    if (typeof scope == "string") {
-        // no argument for scope, this arg is meant for prefix
-        throwIt = prefix;
-        prefix  = scope;
-        scope   = {};
-    } else if (scope == null) {
+// Validates that a number of tests pass
+function validate(scope, tests = null, opts={}) {
+    if (typeof scope == "array") {
+        // No scope was passed
+        opts = tests || {};
+        tests = scope;
         scope = {};
-    } else if (typeof scope != "table") {
-        err = "expected type table but got type " + typeof scope;
+    } else if ("scope" in opts) {
+        throw "validate: scope cannot be passed as both a parameter and an option";
     }
+    local defaults = {
+        scope      = {},
+        prefix     = "unknown",
+        throws     = true
+    };
 
-    if (prefix == null) {
-        prefix == "Unknown";
-    }
+    opts = merged([ opts, { scope=scope }, defaults ], { safe=true, prefix="validation" });
 
-    if (throwIt == null) {
-        throwIt = true;
+    local errs = [];
+
+    if (typeof opts.scope != "table") {
+        errs.push("scope must be of type table, got type " + typeof scope);
     }
 
     // Accept a singular test, but treat it like an array
@@ -136,14 +138,15 @@ function validate(tests, scope = null, prefix = null, throwIt = null) {
     // Report indices in test errors?  Don't if there's only one test
     local reportIndex = tests.len() > 1;
 
-    if (err == null) {
+    if (errs.len() == 0) {
         // Run the test functions
         foreach (index, test in tests) {
+            local err = null;
             try {
                 local val;
                 if (typeof test == "function") {
                     // Call the test function
-                    val = test.bindenv(scope)();
+                    val = test.bindenv(opts.scope)();
                 } else {
                     // Set the test value
                     val = test;
@@ -153,29 +156,28 @@ function validate(tests, scope = null, prefix = null, throwIt = null) {
                 // treated as an error
                 if (val != null && val != true) {
                     err      = val.tostring();
-                    errIndex = index;
-                    break;
                 }
             } catch (e) {
                 // An error was thrown calling the test function, obvs treat it as an error
                 err      = e.tostring();
-                errIndex = index;
+            }
+            if (err != null) {
+                if (reportIndex) {
+                    errs.push(format("%s validation #%d failed: %s", opts.prefix, index+1, err));
+                } else {
+                    errs.push(format("%s validation failed: %s", opts.prefix, err));
+                }
                 break;
             }
         }
     }
 
     // Throw or return the error
-    if (err != null) {
-        if (reportIndex) {
-            err = format("%s validation #%d failed: %s", prefix, errIndex+1, err);
+    if (errs.len() > 0) {
+        if (opts.throws) {
+            throw join(errs, "\n");
         } else {
-            err = format("%s validation failed: %s", prefix, err);
-        }
-        if (throwIt) {
-            throw err;
-        } else {
-            return err;
+            return join(errs, "\n");
         }
     } else {
         // No error, all good
