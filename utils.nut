@@ -21,6 +21,9 @@ function merged(tables, opts={}) {
     if (!("safe" in opts)) {
         opts.safe <- false;
     }
+    if (!("prefix" in opts)) {
+        opts.prefix <- "";
+    }
 
     tables = toarray(tables);
 
@@ -52,7 +55,7 @@ function merged(tables, opts={}) {
             local valid = !validKeys || i != 0 || (validKeys.find(k) != null);
 
             if (!valid) {
-                throw "Unknown key " + k;
+                throw opts.prefix ? prefix + ": merged unknown key " + k : "merged unknown key in safe mode" + k;
             }
 
             // If the keys doesn't exist, set it
