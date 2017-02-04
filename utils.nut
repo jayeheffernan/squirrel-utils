@@ -73,6 +73,29 @@ function merged(tables, opts={}) {
     return merged;
 }
 
+function tostring(val) {
+    if (typeof val == "string") {
+        return "\"" + val + "\"|;"
+    } else if (val == null) {
+        return "null";
+    } else if ("tostring" in val) {
+        return val.tostring();
+    } else {
+        throw "cannot convert val tostring";
+    }
+}
+
+function join(arr, sep="") {
+    arr = toarray(arr);
+    if (arr.len() == 0)
+        return "";
+    local s = arr[0];
+    for (local i = 1; i < arr.len(); i++) {
+        s += sep + arr[i];
+    }
+    return s;
+}
+
 // Validates an obj against a number of test function
 // A test function should return `null` or `true` on success, and usually
 // return (or throw) a string (representing an error message) on failure.  Test
