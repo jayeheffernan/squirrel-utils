@@ -121,7 +121,8 @@ function validate(scope, tests = null, opts={}) {
     local defaults = {
         scope      = {},
         prefix     = "unknown",
-        throws     = true
+        throws     = true,
+        tryAll     = false
     };
 
     opts = merged([ opts, { scope=scope }, defaults ], { safe=true, prefix="validation" });
@@ -167,7 +168,9 @@ function validate(scope, tests = null, opts={}) {
                 } else {
                     errs.push(format("%s validation failed: %s", opts.prefix, err));
                 }
-                break;
+                if (!opts.tryAll) {
+                    break;
+                }
             }
         }
     }

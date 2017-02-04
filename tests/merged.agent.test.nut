@@ -6,7 +6,6 @@ class MergedTestCase extends ImpTestCase {
             "c": 3,
         };
         local copy = ::merged(orig);
-        return http.jsonencode(copy);
         this.assertDeepEqual(orig, copy);
         this.assertTrue(orig != copy);
         return "It copies a table";
