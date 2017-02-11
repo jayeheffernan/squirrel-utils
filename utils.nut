@@ -238,11 +238,9 @@ function retry(opts = {}) {
     local attempt;
     attempt = function() {
         imp.wakeup(0, function(){
-            server.log("trying");
 
             // What to do when an error happens in the task...
             local handleError = function(err) {
-                server.log("failed");
                 // Decrement the times remaining
                 opts.times--;
 
@@ -276,7 +274,6 @@ function retry(opts = {}) {
                         handleError(err);
                     } else {
                         // Success! call the callback
-                        server.log("succeeded");
                         opts.cb(null, data);
                     }
                 }.bindenv(this));
