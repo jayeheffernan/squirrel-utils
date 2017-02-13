@@ -1,3 +1,4 @@
+// Mergeds an array of squirrel tables, earlier tables' keys take precedence
 function merged(tables, opts={}) {
     if (!( "respectNulls" in opts )) {
         opts.respectNulls <- false;
@@ -39,7 +40,7 @@ function merged(tables, opts={}) {
             local valid = !validKeys || i != 0 || (validKeys.find(k) != null);
 
             if (!valid) {
-                throw opts.prefix ? prefix + ": merged unknown key " + k : "merged unknown key in safe mode" + k;
+                throw opts.prefix ? opts.prefix + ": merged unknown key " + k : "merged unknown key in safe mode" + k;
             }
 
             // If the keys doesn't exist, set it
