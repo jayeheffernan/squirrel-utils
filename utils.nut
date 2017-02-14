@@ -6,3 +6,4 @@
 #include "src/validate.nut"
 #include "src/toarray.nut"
 #include "src/retry.nut"
+#include "src/bequal.nut"
