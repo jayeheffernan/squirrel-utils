@@ -24,6 +24,9 @@ function merged(tables, opts={}) {
 
     foreach (i, table in tables) {
 
+        if (typeof table != "table") {
+            throw format("merged table #%d is of type %s", i, typeof table);
+        }
         foreach (k, v in table) {
             // Null can count as a "real" value for this slot if...
             local canBeNull = (
